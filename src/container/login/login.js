@@ -5,6 +5,28 @@ import { Redirect } from "react-router-dom";
 import { login } from "../../redux/user.redux";
 import Logo from "../../component/logo/logo";
 
+function WrapperHello(Comp) {
+  class WrapComp extends Component {
+    render() {
+      return (
+        <div>
+          <p>这里是HOC高阶组件特有的原生</p>
+          <Comp {...this.props} />
+        </div>
+      );
+    }
+  }
+
+  return WrapComp;
+}
+
+@WrapperHello
+class Hello extends Component {
+  render() {
+    return <h2>hello imooc I love react</h2>;
+  }
+}
+
 @connect(
   state => state.user,
   { login }
@@ -39,7 +61,10 @@ class Login extends Component {
   render() {
     return (
       <div>
-        {this.props.redirectTo ? <Redirect to={this.props.redirectTo} /> : null}
+        <Hello />
+        {this.props.redirectTo && this.props.redirectTo !== "/login" ? (
+          <Redirect to={this.props.redirectTo} />
+        ) : null}
         <Logo />
         <h2 style={{ textAlign: "center" }}>我是登录页面</h2>
         <WingBlank>
@@ -50,7 +75,10 @@ class Login extends Component {
             <InputItem onChange={v => this.handleChange("user", v)}>
               用户
             </InputItem>
-            <InputItem type="password" onChange={v => this.handleChange("pwd", v)}>
+            <InputItem
+              type="password"
+              onChange={v => this.handleChange("pwd", v)}
+            >
               密码
             </InputItem>
           </List>
