@@ -21,7 +21,6 @@ export function userList(data) {
 export function getUserList(type) {
   return dispatch => {
     Axios.get(`/user/list?type=${type}`).then(res => {
-      console.log(type)
       if (res.data.code === 0) {
         dispatch(userList(res.data.data ));
       }

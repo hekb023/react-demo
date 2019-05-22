@@ -3,6 +3,7 @@ const utils = require("utility");
 const Router = express.Router();
 const models = require("./moudel.js");
 const User = models.getModel("user");
+const Chat = models.getModel("chat");
 
 const _filter = { pwd: 0, __v: 0 };
 
@@ -10,8 +11,48 @@ Router.get("/list", function(req, res) {
   const { type } = req.query;
   // User.deleteMany({}, function(req, res) {});
   User.find({ type }, function(err, doc) {
-    return res.json({code:0, data: doc});
+    return res.json({ code: 0, data: doc });
   });
+});
+
+Router.get("/getmsglist", function(req, res) {
+  const user = req.cookies.userid;
+  let users = {};
+  let msgs = null;
+  User.find({}, function(err, doc) {
+    if (!err) {
+      doc.forEach(el => {
+        users[el._id] = { name: el.user, avatar: el.avatar };
+      });
+      if (msgs) {
+        return res.json({ code: 0, msgs: msgs, users: users });
+      }
+    }
+  });
+  Chat.find({ $or: [{ from: user }, { to: user }] }, function(err, doc) {
+    if (!err && Object.keys(users).length > 0) {
+      msgs = doc;
+      return res.json({ code: 0, msgs: doc, users: users });
+    }
+  });
+});
+
+Router.post("/readmsg", function(req, res) {
+  const userid = req.cookies.userid;
+  const { from } = req.body;
+  console.log(userid, from);
+  Chat.update(
+    { from, to: userid },
+    { $set: { read: true } },
+    { multi: true },
+    function(err, doc) {
+      console.log(doc);
+      if (!err) {
+        return res.json({ code: 0, num: doc.nModified });
+      }
+      return res.json({ code: 1, msg: "更新失败" });
+    }
+  );
 });
 
 Router.post("/update", function(req, res) {
@@ -20,7 +61,6 @@ Router.post("/update", function(req, res) {
     return JSON.dumps({ code: 1 });
   }
   const body = req.body;
-  console.log(body);
   User.findByIdAndUpdate(userid, body, function(err, doc) {
     const data = Object.assign(
       {},

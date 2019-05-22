@@ -4,6 +4,7 @@ import { createStore, applyMiddleware, compose } from "redux";
 import thunk from "redux-thunk";
 import { Provider } from "react-redux";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
+import "babel-polyfill";
 
 import "./index.css";
 import reducers from "./reducer";
@@ -15,15 +16,17 @@ import Register from "./container/register/register";
 import Bossinfo from "./container/bossinfo/bossinfo";
 import Geniusinfo from "./container/geniusinfo/geniusinfo";
 import Dashboard from "./container/dashboard/dashboard";
+import Chat from "./component/chat/chat";
+
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
 const store = createStore(
   reducers,
-  compose(
-    applyMiddleware(thunk),
-    window.__REDUX_DEVTOOLS_EXTENSION__
-      ? window.__REDUX_DEVTOOLS_EXTENSION__()
-      : () => {}
-  )
+  composeEnhancers(applyMiddleware(thunk))
+  // compose(
+  //   applyMiddleware(thunk),
+  //   window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+  // )
 );
 
 ReactDom.render(
@@ -36,6 +39,7 @@ ReactDom.render(
           <Route path="/bossinfo" component={Bossinfo} />
           <Route path="/login" component={Login} />
           <Route path="/register" component={Register} />
+          <Route path="/chat/:user" component={Chat} />
           <Route component={Dashboard} />
         </Switch>
       </div>

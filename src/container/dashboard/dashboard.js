@@ -2,21 +2,29 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { NavBar } from "antd-mobile";
 import { Switch, Route } from "react-router-dom";
+import { getMsgList, recvMsg } from "../../redux/chat.redux";
 
 import NavLinkBar from "../../component/navlink/navlink";
-import Boss from '../../component/boss/boss'
-import Genius from '../../component/genius/genius'
-import User from '../../component/user/user'
+import Boss from "../../component/boss/boss";
+import Genius from "../../component/genius/genius";
+import User from "../../component/user/user";
+import Msg from '../../component/msg/msg.js';
 
-function Msg() {
-  return <h2>消息首页</h2>;
-}
-
-@connect(state => state)
+@connect(
+  state => state,
+  { getMsgList, recvMsg }
+)
 class Dashboard extends Component {
   constructor(props) {
     super(props);
     this.state = {};
+  }
+  componentDidMount() {
+    console.log("dashboard...");
+    if (!this.props.chat.chatmsg.length) {
+      this.props.getMsgList();
+      this.props.recvMsg();
+    }
   }
 
   render() {
@@ -57,7 +65,8 @@ class Dashboard extends Component {
     return (
       <div>
         <NavBar className="fixed-header">
-          {navList.find(v => v.path === pathname).title}
+          {navList.find(v => v.path === pathname) &&
+            navList.find(v => v.path === pathname).title}
         </NavBar>
         <div style={{ marginTop: 45 }}>
           <Switch>
